@@ -13,10 +13,11 @@
         [GROUP BY 그룹화할칼럼 [HAVING 그룹조건식]]
         [ORDER BY 정렬할칼럼 정렬방식]
     6. 순서
-        ④ SELECT 조회할칼럼, 조회할칼럼, 조회할칼럼, ... 
+        
         ① FROM 테이블이름
         ② [WHERE 조건식] 
         ③ [GROUP BY 그룹화할칼럼 [HAVING 그룹조건식]]
+        ④ SELECT 조회할칼럼, 조회할칼럼, 조회할칼럼, ... 
         ⑤ [ORDER BY 정렬할칼럼 정렬방식]
 /*
 
@@ -103,9 +104,6 @@ SELECT EMPNO, ENAME, JOB, MGR, HIREDATE, SAL ,COMM, DEPTNO
 SELECT EMPNO, ENAME, JOB, MGR, HIREDATE, SAL ,COMM, DEPTNO
     FROM EMP
 WHERE ENAME LIKE 'A%';
-
-
-프롬 왜열 그룹 바이 셀렉트 오더바이
 
 
 
