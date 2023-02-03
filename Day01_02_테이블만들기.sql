@@ -32,6 +32,11 @@
         UNIQUE
     3. 값의 제한
         CHECK
+    4. primary key(pk)  개체무결성
+        not null + unique (널 값 , 중복된 값을 가질수 없다)
+    
+    5. foreign key(fk)  참조무결성
+        참조하는 값만 가질수 있다
 */
 
 
