@@ -176,7 +176,7 @@ SELECT D.DNAME, COUNT(S.SNAME)
 모든 교수들의 연봉순위, 교수명, 연봉을 조회하시오. 연봉순으로 조회하시오. (10점)
 */
 
-SELECT RANK() OVER(ORDER BY SAL DESC) AS 연봉순, PNAME, SAL  --내림차순 
+SELECT RANK() OVER(ORDER BY SAL DESC) AS 연봉순위, PNAME AS 교수명, SAL AS 연봉  
   FROM PROFESSOR;
 
 
