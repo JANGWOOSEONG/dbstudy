@@ -61,20 +61,28 @@ COMMIT;
 
 
 -- 1. 구매(BUYS) 테이블에서 구매개수(BUY_AMOUNT)의 평균을 정수로 내림 처리해서 조회하는 쿼리문을 작성하시오. (5점)
+SELECT FLOOR(AVG(BUY_AMOUNT))
+  FROM BUYS;
 
 
 -- 2. 사용자(USERS) 테이블에서 가입일(USER_REGDATE)로부터 현재까지 경과한 일수를 조회하는 쿼리문을 작성하시오. 결과의 소수점은 정수로 반올림해서 조회하시오. (5점)
-
+SELECT ROUND(SYSDATE - USER_REGDATE) AS 가입일
+  FROM USERS;
 
 -- 3. 사용자(USERS) 테이블의 태어난년도(USER_YEAR) 칼럼을 이용하여 가장 나이가 많은 사용자가 태어난년도를 조회하는 쿼리문을 작성하시오. (5점)
-
+SELECT MIN(USER_YEAR) AS 태어난년도
+  FROM USERS;
 
 -- 4. 사용자(USERS) 테이블의 태어난년도(USER_YEAR) 칼럼을 이용하여 가장 나이가 적은 사용자의 이름(USER_NAME)을 조회하는 쿼리문을 작성하시오. (5점)
+SELECT MAX(USER_YEAR) AS 태어난년도
+  FROM USERS;
 
 
 -- 5. 특정 테이블을 가지고 있는 SCOTT 사용자 계정을 제거하는 쿼리문을 작성하시오.
 -- SCOTT 사용자 계정이 제거되면서 테이블도 함께 삭제될 수 있도록 옵션을 사용하시오.
 -- 단, 실제로 SCOTT 사용자 계정을 제거하지는 말고 쿼리문만 작성하시오. (5점)
+
+DROP USER SCOTT CASCADE;
 
 
 -- 6. 다음 사용자를 생성하는 쿼리문과 생성된 사용자에게 권한을 부여하는 쿼리문을 각각 모두 작성하시오. (5점)
@@ -82,15 +90,33 @@ COMMIT;
 --    2) 비밀번호 : 1234
 --    3) 사용권한 : DBA
 
+CREATE USER ADMIN IDENTIFIED BY 1234;
+GRANT DBA TO ADMIN;
 
 -- 7. 모든 고객의 고객아이디, 고객명, 구매횟수를 조회하시오. 외부조인을 사용하시오. (10점)
+SELECT U.USER_ID AS 고객아이디 ,U.USER_NAME AS 고객명,COUNT(B.BUY_NO) AS 구매횟수
+  FROM USERS U LEFT OUTER JOIN BUYS B
+    ON U.USER_ID = B.USER_ID
+ GROUP BY U.USER_ID,U.USER_NAME; 
+  
    
-
 -- 8. 카테고리가 '전자'인 제품을 구매한 고객아이디, 고객명, 총구매액을 조회하시오. (10점)
+
+SELECT U.USER_ID AS 고객아이디 , U.USER_NAME AS 고객명 , SUM(B.PROD_PRICE * B.BUY_AMOUNT) AS 총구매액 
+  FROM USERS U INNER JOIN BUYS B
+    ON U.USER_ID = B.USER_ID
+ WHERE B.PROD_CATEGORY = '전자'
+ GROUP BY U.USER_ID , U.USER_NAME;
+ 
 
 
 -- 9. 구매횟수가 2회 이상인 고객아이디, 고객명, 구매횟수를 조회하시오. 내부조인을 사용하시오. (10점)
 
+SELECT U.USER_ID AS 고객아이디, U.USER_NAME AS 고객명, COUNT(B.BUY_NO) AS 구매횟수
+  FROM USERS U INNER JOIN BUYS B
+    ON U.USER_ID = B.USER_ID
+ WHERE B.BUY_NO >=2
+ GROUP BY U.USER_ID , U.USER_NAME;
 
 -- 10. 태어난년도(USER_YEAR)가 1960년인 사용자의 이름을 서버메시지로 출력할 수 있는 USER_PROC 프로시저를 작성하시오.
 -- 작성된 USER_PROC 프로시저를 호출하기 위한 코드도 함께 작성하시오.
@@ -101,46 +127,47 @@ CREATE OR REPLACE PROCEDURE USER_PROC
 IS
     NAME USERS.USER_NAME%TYPE;
 BEGIN
-    SELECT USER_NAME 
+    SELECT USER_NAME
       INTO NAME
       FROM USERS
      WHERE USER_YEAR = 1960;
-     DBMS_OUTPUT.PUT_LINE(NAME);
-END;     
-     
+    DBMS_OUTPUT.PUT_LINE(NAME);
+END;
+
 -- 호출
 EXECUTE USER_PROC();
 
--- 11. 사용자의 아이디(USER_ID)를 전달하면 해당 아이디를 가진 사용자의 구매총액(PROD_PRICE * BUY_AMOUNT)의 합계를 계산한 뒤 합계가 1000 이상이면 'A', 1000 미만 500 이상이면 'B', 500 미만이면 'C'를 반환하는 GET_GRADE() 사용자 함수를 작성하시오. 아이디가 'KHD'인 사용자의 이름(USER_NAME)과 GET_GRADE() 함수의 결과를 조회하는 쿼리문을 작성하시오. (함수 작성 8점, 함수 결과 조회 2점)
+
+-- 11. 사용자의 아이디(USER_ID)를 전달하면 해당 아이디를 가진 사용자의 구매총액(PROD_PRICE * BUY_AMOUNT)의 합계를 계산한 뒤 합계가 1000 이상이면 'A', 1000 미만 500 이상이면 'B', 500 미만이면 'C'를 반환하는 GET_GRADE() 사용자 함수를 작성하시오.
+--     아이디가 'KHD'인 사용자의 이름(USER_NAME)과 GET_GRADE() 함수의 결과를 조회하는 쿼리문을 작성하시오. (함수 작성 8점, 함수 결과 조회 2점)
 CREATE OR REPLACE FUNCTION GET_GRADE(USERID USERS.USER_ID%TYPE)
 RETURN VARCHAR2
 IS
-BUY_TOTAL NUMBER;
+    BUY_TOTAL NUMBER;
 BEGIN
     SELECT SUM(PROD_PRICE * BUY_AMOUNT)
       INTO BUY_TOTAL
       FROM BUYS
-     WHERE USER_ID = USERID; 
-    IF BUY_TOTAL >= 1000 THEN 
-       RETURN 'A';
+     WHERE USER_ID = USERID;
+    IF BUY_TOTAL >= 1000 THEN
+        RETURN 'A';
     ELSIF BUY_TOTAL >= 500 THEN
-       RETURN 'B';
+        RETURN 'B';
     ELSE
-       RETURN 'C';
+        RETURN 'C';
     END IF;
-END;    
+END;
 
 SELECT USER_NAME AS 고객명, GET_GRADE('KHD') AS 등급
   FROM USERS
- WHERE USER_ID ='KHD'; 
- 
--- 팁 모든 고객의 등급 확인은?
+ WHERE USER_ID = 'KHD';
+
+-- 팁. 모든 고객의 등급 확인은?
 SELECT USER_NAME AS 고객명, GET_GRADE(USER_ID) AS 등급
   FROM USERS;
 
 
 -- 12. 구매(BUYS) 테이블의 각 행(Row)이 수정(UPDATE)되거나 추가(INSERT)된 이후에 '구매내역이 변동되었습니다.'라는 서버메시지를 출력하는 BUYS_TRIG 트리거를 작성하시오. (10점)
-
 CREATE OR REPLACE TRIGGER BUYS_TRIG
     AFTER
     UPDATE OR INSERT
@@ -150,7 +177,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('구매내역이 변동되었습니다.');
 END;
 
--- 팁 트리거 동작 확인
+-- 팁. 트리거 동작 확인
 UPDATE BUYS
    SET USER_ID = 'KHD'
- WHERE BUY_NO = 1001;  
+ WHERE BUY_NO = 1001;
