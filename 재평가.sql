@@ -61,7 +61,7 @@ COMMIT;
 
 
 -- 1. 구매(BUYS) 테이블에서 구매개수(BUY_AMOUNT)의 평균을 정수로 내림 처리해서 조회하는 쿼리문을 작성하시오. (5점)
-SELECT FLOOR(AVG(BUY_AMOUNT))
+SELECT FLOOR(AVG(BUY_AMOUNT)) AS 구매개수평균
   FROM BUYS;
 
 
@@ -74,8 +74,9 @@ SELECT MIN(USER_YEAR) AS 태어난년도
   FROM USERS;
 
 -- 4. 사용자(USERS) 테이블의 태어난년도(USER_YEAR) 칼럼을 이용하여 가장 나이가 적은 사용자의 이름(USER_NAME)을 조회하는 쿼리문을 작성하시오. (5점)
-SELECT MAX(USER_YEAR) AS 태어난년도
-  FROM USERS;
+SELECT USER_NAME
+  FROM USERS
+ WHERE USER_YEAR = (SELECT MAX (USER_YEAR) FROM USERS);
 
 
 -- 5. 특정 테이블을 가지고 있는 SCOTT 사용자 계정을 제거하는 쿼리문을 작성하시오.
@@ -115,8 +116,8 @@ SELECT U.USER_ID AS 고객아이디 , U.USER_NAME AS 고객명 , SUM(B.PROD_PRIC
 SELECT U.USER_ID AS 고객아이디, U.USER_NAME AS 고객명, COUNT(B.BUY_NO) AS 구매횟수
   FROM USERS U INNER JOIN BUYS B
     ON U.USER_ID = B.USER_ID
- WHERE B.BUY_NO >=2
- GROUP BY U.USER_ID , U.USER_NAME;
+ GROUP BY U.USER_ID , U.USER_NAME
+HAVING COUNT(B.BUY_NO) >= 2;  
 
 -- 10. 태어난년도(USER_YEAR)가 1960년인 사용자의 이름을 서버메시지로 출력할 수 있는 USER_PROC 프로시저를 작성하시오.
 -- 작성된 USER_PROC 프로시저를 호출하기 위한 코드도 함께 작성하시오.
